@@ -1,0 +1,22 @@
+---
+title: "Tidytuesday Museum"
+output: html_document
+author: Ng Simin
+date: "2022-11-22"
+---
+
+
+### Set up
+``` {r setup, results=FALSE, message=FALSE}
+library(tidyverse)
+library(ggmosaic)
+
+m <- read.csv("./museums.csv")
+```
+
+### Graph 1
+``` {r, warning = FALSE}
+m %>% summarise(Accreditation, Size) %>% ggplot() +
+  geom_mosaic(aes(product(Size), fill = Accreditation), show.legend = FALSE) +
+  labs(title = "Relationship between accreditation status and size of museums")
+```
