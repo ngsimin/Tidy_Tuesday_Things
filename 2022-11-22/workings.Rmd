@@ -5,18 +5,38 @@ author: Ng Simin
 date: "2022-11-22"
 ---
 
-
 ### Set up
 ``` {r setup, results=FALSE, message=FALSE}
+library(ggplot2)
 library(tidyverse)
 library(ggmosaic)
+library(Hmisc)
+library(maps)
 
-m <- read.csv("./museums.csv")
+m <- read.csv("./museums.csv") 
+Hmisc::describe(m) 
 ```
 
 ### Graph 1
+Variables: Accreditation, Size
 ``` {r, warning = FALSE}
 m %>% summarise(Accreditation, Size) %>% ggplot() +
   geom_mosaic(aes(product(Size), fill = Accreditation), show.legend = FALSE) +
-  labs(title = "Relationship between accreditation status and size of museums")
+  labs(title = "Relationship between Accreditation Status and Size of Museums")
+```
+
+### Graph 2
+Variables: Latitude, Longitude
+``` {r}
+m %>% mutate(lat = round(Latitude, 1), long = round(Longitude, 1)) %>%
+  group_by(lat, long) %>% summarise(n = n(), .groups = "drop") -> mm
+
+ggplot() + 
+  geom_polygon(data = map_data("world"), aes(long, lat, group = group), 
+               fill = "gray90", color = "black") + 
+  coord_fixed(ratio = 1.3, xlim = c(-10,3), ylim = c(50.3, 59)) +
+  geom_point(data = mm, aes(long, lat, size = n), alpha = .5) + 
+  scale_size_area(max_size = 8) + theme_void() + 
+  theme(legend.position = "none", plot.title=element_text(hjust=0.5)) +
+  labs(size = "Count", title = "Distribution of museums across UK")
 ```
