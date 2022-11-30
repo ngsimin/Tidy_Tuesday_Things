@@ -1,0 +1,6 @@
+---
+title: "Tidytuesday Worldcup"
+author: "Ng Simin"
+date: "2022-11-29"
+output: html_document
+---
