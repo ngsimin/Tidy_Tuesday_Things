@@ -4,3 +4,54 @@ author: "Ng Simin"
 date: "2022-11-29"
 output: html_document
 ---
+
+### Set up
+``` {r setup, results = FALSE, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(Hmisc)
+library(rvest)
+library(gganimate)
+library(gifski)
+
+matches <- read.csv("./data/wcmatches.csv") 
+Hmisc::describe(matches) 
+
+worldcups <- read.csv("./data/worldcups.csv")
+Hmisc::describe(worldcups) 
+```
+
+### About the data 
+``` {r, include = FALSE}
+page <- read_html("https://github.com/rfordatascience/tidytuesday/tree/master/data/2022/2022-11-29")
+item <- html_elements(page, "table")
+about1 <- html_table(item[[1]])
+about2 <- html_table(item[[2]])
+```
+
+##### matches 
+``` {r, echo = FALSE}
+print(as_tibble(about1))
+```
+
+##### worldcups
+``` {r, echo = FALSE}
+print(as_tibble(about2))
+```
+
+### Graph 1
+Variables: winning_team, losing_team
+``` {r, warning = FALSE}
+matches %>% summarise(win = winning_team, lose = losing_team) %>%
+  pivot_longer(everything(), names_to = "result", values_to = "country") %>% 
+  group_by(country, result) %>% summarise(n = n(), .groups = "drop") %>% 
+  pivot_wider(names_from = "result", values_from = "n") %>% 
+  mutate(across(lose:win, ~replace_na(., 0))) %>% filter(!is.na(country)) %>% 
+  mutate(win_rate = win / (win + lose), lose = NULL, win = NULL, 
+         country = reorder(country, win_rate), 
+         rank = min_rank(desc(win_rate))) %>% 
+  filter(win_rate > 0, rank <= 10) %>% ggplot() +
+  geom_col(aes(x = country, y = win_rate)) + coord_flip() + 
+  labs(title = "10 Countries with the highest Win Rates", 
+       y = "Win Rate", x = "Country")
+```
