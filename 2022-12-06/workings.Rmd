@@ -1,0 +1,38 @@
+---
+title: "TidyTuesday Elevators"
+author: "Ng Simin"
+date: "2022-12-06"
+output: html_document
+---
+
+### Set up
+``` {r setup, results = FALSE, message = FALSE, warning = FALSE}
+library(ggplot2)
+library(tidyverse)
+library(Hmisc)
+library(GGally)
+
+e <- read.csv("./elevators.csv") 
+Hmisc::describe(e) 
+# ggpairs(m, names(e)[1:2])
+```
+
+### Graph 1
+Variables: Device Status 
+``` {r}
+e %>% group_by(DV_DEVICE_STATUS_DESCRIPTION) %>% summarise(count = n()) %>% 
+  mutate(DV_DEVICE_STATUS_DESCRIPTION = 
+           reorder(DV_DEVICE_STATUS_DESCRIPTION, desc(count))) %>% 
+  ggplot() + geom_col(aes(x = DV_DEVICE_STATUS_DESCRIPTION, y = count)) +
+  labs(x = "Device Status", y = "Count", 
+       title = "Count of Elevators by Device Status")
+```
+
+### Graph 2
+Variables: Borough
+``` {r}
+e %>% group_by(Borough) %>% summarise(count = n()) %>% filter(Borough != "") %>% 
+  mutate(Borough = reorder(Borough, desc(count))) %>%
+  ggplot() + geom_col(aes(x = Borough, y = count)) +
+  labs(x = "Borough", y = "Count", title = "Count of Elevators by Borough")
+```
